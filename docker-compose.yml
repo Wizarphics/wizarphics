@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  app:
+    build: ./docker
+    image: wfw
+    ports:
+      - "80:80"
+    user: "1000:1000" #type the "id" command in your terminal and look for uid and gid if you don't know what they are
+    volumes:
+      # Mount source-code for development
+      - ./:/var/www
+  db:
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    volumes:
+      # Prevent data loss on remove
+      - mysql-data:/var/lib/mysql
+      # Custom config for mysql
+      - ./docker/mysql-config.cnf:/etc/mysql/conf .d/conf.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wild_dream
+      MYSQL_USER: dream
+      MYSQL_PASSWORD: league
+
+volumes:
+  mysql-data: 
