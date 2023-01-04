@@ -20,7 +20,7 @@ jobs:
           protocol: ftps
           port: ${{ secrets.FTP_PORT }}
           local-dir: ./public/
-          server-dir: wizarp/
+          server-dir: public_html/
           exclude: |
             **/.git*
             **/.git*/**
