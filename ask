@@ -1,8 +1,5 @@
 <?php
 
-$act = 'up -d';
-if(($argv[1]))
-
 if (defined('PHP_OS') && PHP_OS === 'WINNT')
     return shell_exec('php -S localhost:5000 -t public');
 else

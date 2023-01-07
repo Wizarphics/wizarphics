@@ -58,6 +58,13 @@ class Request extends Message implements MessageInterface, RequestInterface
      */
     protected $validLocales = [];
 
+     /**
+     * A URI instance.
+     *
+     * @var URI
+     */
+    protected $uri;
+
     /**
      * Class constructor.
      */
@@ -74,6 +81,10 @@ class Request extends Message implements MessageInterface, RequestInterface
         // $this->routeArgs = [];
         // $this->files = new FileCollection();
         $this->detectLocale();
+
+        if(empty($this->uri)){
+            $this->uri = new URI();
+        }
     }
 
     /**
@@ -525,4 +536,13 @@ class Request extends Message implements MessageInterface, RequestInterface
     {
         return $this->defaultLocale;
     }
+
+	/**
+	 * A URI instance.
+	 * 
+	 * @return URI
+	 */
+	public function getUri() {
+		return $this->uri;
+	}
 }

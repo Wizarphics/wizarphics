@@ -10,7 +10,13 @@ defined('CORE_DIR') or define('CORE_DIR', Application::$CORE_DIR);
 defined('STOREPATH') or define('STOREPATH', ROOT_DIR . '/storage/');
 defined('PUBLICPATH') or define('PUBLICPATH', ROOT_DIR . '/public/');
 defined('VIEWPATH') or define('VIEWPATH', ROOT_DIR . '/views/');
-defined('ERROR_PATH') or define('ERROR_PATH', VIEWPATH . '/errors/');
+defined('ERROR_PATH') or define('ERROR_PATH', VIEWPATH . 'errors/');
+
+enum ENVIRONMENT:string {
+    case DEV = 'development';
+    case PROD = 'production';
+    case TEST = 'testing';
+}
 
 /*
  * ---------------------------------------------------------------
@@ -39,7 +45,6 @@ Sage::$cliDetection = true;
 $dotenv = Dotenv\Dotenv::createImmutable(ROOT_DIR);
 $dotenv->load();
 $dotenv->required(['DB_DSN', 'DB_PASSWORD', 'DB_USER', 'app.userClass']);
-
 
 /*
  * ---------------------------------------------------------------
@@ -76,6 +81,22 @@ if (file_exists(CORE_DIR . '/configs/Constants.php'))
 if (file_exists(CORE_DIR . '/configs/Common.php'))
     require_once CORE_DIR . '/configs/Common.php';
 
+/*
+ * ---------------------------------------------------------------
+ * Load app evironment configs based on current Evironment
+ * ---------------------------------------------------------------
+*/
+$appEnv = $_ENV['ENVIRONMENT']??ENVIRONMENT;
+$envFolder = $_ENV['ENVIRONMENT_DIR']??ROOT_DIR.DIRECTORY_SEPARATOR.'configs/env/';
+$envFile = ENVIRONMENT::tryFrom($appEnv)?->value;
+
+if ($envFile) {
+    if (file_exists($envFolder . $envFile . '.php')) {
+        require $envFolder . $envFile . '.php';
+    }else{
+        require CORE_DIR . DIRECTORY_SEPARATOR.'configs/env/'.$envFile.'.php';
+    }
+}
 
 /*
  * ---------------------------------------------------------------

@@ -34,7 +34,7 @@
     <?php yieldSection('css') ?>
     <link href="/css/style.min.css" rel="stylesheet">
     <style type="text/css">
-        <?= preg_replace('#[\r\n\t ]+#', ' ', file_get_contents(ERROR_PATH . DIRECTORY_SEPARATOR . 'prism.css')) ?><?= preg_replace('#[\r\n\t ]+#', ' ', file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'prism.css')) ?>
+        <?= preg_replace('#[\r\n\t ]+#', ' ', file_get_contents(ERROR_PATH . DIRECTORY_SEPARATOR . 'prism.css')) ?>
     </style>
     <script type="text/javascript">
         <?= file_get_contents(ERROR_PATH . DIRECTORY_SEPARATOR . 'prism.js') ?>

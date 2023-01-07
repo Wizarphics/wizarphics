@@ -43,6 +43,7 @@ require_once ROOT_DIR. '/vendor/autoload.php';
 $app = require_once Application::$CORE_DIR . '/bootstrap.php';
 
 
+
 /*
  * ---------------------------------------------------------------
  * Run The Application

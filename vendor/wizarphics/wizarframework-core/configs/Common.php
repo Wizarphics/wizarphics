@@ -1095,3 +1095,39 @@ if (!function_exists('fecthModel')) {
         return app()->getModel($class, $from, ...$constructorArgs);
     }
 }
+
+if (! function_exists('uri_string')) {
+    /**
+     * URL String
+     *
+     * Returns the path part of the current URL
+     *
+     * @param bool $relative Whether the resulting path should be relative to baseURL
+     */
+    function uri_string(bool $relative = false): string
+    {
+        return $relative
+            ? ltrim(app()->request->getPath(), '/')
+            : app()->request->getUri()->getPath();
+    }
+}
+
+
+if (! function_exists('url_is')) {
+    /**
+     * Determines if current url path contains
+     * the given path. It may contain a wildcard (*)
+     * which will allow any valid character.
+     *
+     * Example:
+     *   if (url_is('admin*')) ...
+     */
+    function url_is(string $path): bool
+    {
+        // Setup our regex to allow wildcards
+        $path        = '/' . trim(str_replace('*', '(\S)*', $path), '/ ');
+        $currentPath = '/' . trim(uri_string(true), '/ ');
+
+        return (bool) preg_match("|^{$path}$|", $currentPath, $matches);
+    }
+}

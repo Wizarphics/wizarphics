@@ -62,19 +62,22 @@ trait ResponseTrait
      */
     public function setStatusCode(int $code, string $reason = '', ?Throwable $prev = null)
     {
+        if ($code < 100 || $code > 599) {
+            throw new RuntimeException('Invalid status code: '. $code);
+        }
+
         // Valid range?
         if ($code < 100 || $code > 599) {
-            http_response_code(500);
             throw new RuntimeException(__('HTTP.invalidStatusCode', [$code]), 500, $prev);
         }
 
         // Unknown and no message?
         if (!array_key_exists($code, static::$statusCodes) && empty($reason)) {
-            http_response_code(500);
             throw new RuntimeException(__('HTTP.unknownStatusCode', [$code]), 500, $prev);
         }
 
         $this->statusCode = $code;
+        // http_response_code($code);
 
         $this->reason = !empty($reason) ? $reason : static::$statusCodes[$code];
 

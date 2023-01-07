@@ -13,16 +13,21 @@
 
 namespace wizarphics\wizarframework;
 
+use Exception;
 use ReflectionClass;
 use Throwable;
 use wizarphics\wizarframework\db\Database;
+use wizarphics\wizarframework\Exception as WizarframeworkException;
+use wizarphics\wizarframework\exception\DatabaseException;
 use wizarphics\wizarframework\exception\NotFoundException;
 use wizarphics\wizarframework\http\Request;
 use wizarphics\wizarframework\http\Response;
 use wizarphics\wizarframework\language\Language;
+use wizarphics\wizarframework\traits\ApiResponseTrait;
 
 class Application
 {
+    use ApiResponseTrait;
     const EVENT_BEFORE_REQUEST = 'beforeRequest';
     const EVENT_AFTER_REQUEST = 'afterRequest';
 
@@ -55,47 +60,36 @@ class Application
         self::$app = $this;
         $this->request = new Request();
         $this->response = new Response();
+        $exception = new WizarframeworkException($this->request, $this->response, ERROR_PATH);
+        $exception->setUp();
         $this->session = new Session();
         $this->router = new Router($this->request, $this->response);
         $this->view = new View();
-        $requestLocale = $this->request->getLocale();
-        $locale = $config['locale'] ?? $requestLocale;
-        $this->lang = new Language($locale);
-        $this->db = Database::getInstance($config['db']);
-        $this->layout = $config['layout'] ?? 'main';
-        $this->appConfigNameSpace = $config['appConfigNameSpace'] ?? '\app\\configs\\';
-        $this->appModelNameSpace = $config['appModelNameSpace'] ?? '\app\\models\\';
-    }
-
-    public function handleExceptions(Throwable $e)
-    {
-        log_message('error', [$e->getMessage(), $e->getTraceAsString()]);
-        $code = $e->getCode();
-
-        if (is_cli()) :
-            echo $e->getCode();
-            exit;
-        else :
-            $this->view->handleException($code, $e);
-        endif;
+        // set_exception_handler([$this, 'handleExceptions']);
+        try {
+            $requestLocale = $this->request->getLocale();
+            $locale = $config['locale'] ?? $requestLocale;
+            $this->lang = new Language($locale);
+            $this->db = Database::getInstance($config['db']);
+            $this->layout = $config['layout'] ?? 'main';
+            $this->appConfigNameSpace = $config['appConfigNameSpace'] ?? '\app\\configs\\';
+            $this->appModelNameSpace = $config['appModelNameSpace'] ?? '\app\\models\\';
+        }catch(\PDOException $e) {
+            throw new DatabaseException($e);
+        }
     }
 
     public function run()
     {
-        set_exception_handler([$this, 'handleExceptions']);
         $this->triggerEvent(self::EVENT_BEFORE_REQUEST);
-        try {
-            $response = $this->router->resolve();
-            if ($response instanceof Response) {
-                $response->send();
-            } else {
-                echo $response;
-            }
-        } catch (Throwable $e) {
-            $code = is_numeric($code = $e->getCode()) ? (int) $code : 500;
-            $this->response->setStatusCode($code, '', $e)->send();
-            $this->handleExceptions($e);
+        
+        $response = $this->router->resolve();
+        if ($response instanceof Response) {
+            $response->send();
+        } else {
+            print $response;
         }
+
         $this->triggerEvent(self::EVENT_AFTER_REQUEST);
     }
 

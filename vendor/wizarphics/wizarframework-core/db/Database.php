@@ -15,6 +15,7 @@ namespace wizarphics\wizarframework\db;
 
 use PDO;
 use wizarphics\wizarframework\Application;
+use wizarphics\wizarframework\exception\DatabaseException;
 
 class Database
 {
@@ -37,17 +38,13 @@ class Database
      */
     private function __construct(array $config)
     {
-        try {
-            $dsn = $config['dsn'] ?? '';
-            $user = $config['user'] ?? '';
-            $password = $config['password'] ?? '';
-            $this->_pdo = new PDO($dsn, $user, $password);
-            $this->_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->_pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-            // echo 'Database connection established.';
-        } catch (\PDOException $e) {
-            Application::$app->handleExceptions($e);
-        }
+        $dsn = $config['dsn'] ?? '';
+        $user = $config['user'] ?? '';
+        $password = $config['password'] ?? '';
+        $this->_pdo = new PDO($dsn, $user, $password);
+        $this->_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->_pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+        // echo 'Database connection established.';
     }
 
     public static function &getInstance(array $config)
